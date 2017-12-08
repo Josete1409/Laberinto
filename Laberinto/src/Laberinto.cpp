@@ -19,6 +19,12 @@
 #define maxnick 11
 #define maxnom 51
 #define maxjug 20
+#define columnas 40
+#define filas 20
+#define ARRIBA 72
+#define ABAJO 80
+#define IZQUIERDA 75
+#define DERECHA 77
 
 //Tipos de datos
 typedef char nombre[maxnom];
@@ -32,6 +38,9 @@ typedef struct{
 }jugador;
 typedef jugador vec_jug[maxjug];
 typedef jugador matriz_jugador[maxjug][5];
+typedef char laberinto_pares[filas][columnas];
+typedef char laberinto_impares[filas][columnas];
+typedef char laberinto_vocales[filas][columnas];
 typedef struct{
 	vec_jug vj;
 	int cont;
@@ -41,10 +50,14 @@ typedef struct{
 int menu1(void);
 int menu2(void);
 void leer_fichero_jugadores(regis_jug rj, jugador j_aux);
+void leer_laberinto_pares(laberinto_pares laberintop);
+void leer_laberinto_impares(laberinto_pares laberintoi);
+void leer_laberinto_vocales(laberinto_pares laberintov);
 void nuevo_jugador(regis_jug rj, nick nickaux, 	jugador reg_jug, jugador j_aux);
 int buscar_nick(regis_jug rj, const nick nickaux);
 int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux);
 void fichero_jugadores(jugador j_aux, regis_jug rj, matriz_jugador jugadores);
+void mover(laberinto_pares laberintop);
 
 using namespace std;
 
@@ -56,6 +69,9 @@ int main(){
 	regis_jug rj;
 	jugador j_aux;
 	matriz_jugador jugadores;
+	laberinto_pares laberintop;
+	laberinto_impares laberintoi;
+	laberinto_vocales laberintov;
 
 	clrscr();
 	opcion1=menu1();
@@ -98,6 +114,8 @@ int main(){
 						Sleep(2000);
 						clrscr();
 						//Cargamos el fichero laberintop.txt para jugar.
+						leer_laberinto_pares(laberintop);
+						mover(laberintop);
 						//Una vez que el usuario llegue a la salida o pulse Esc, si la puntuacion obtenida es mayor a la que ya tenia o no tenia
 						//ninguna se actualizara en caso contrario se quedará la que ya tenia. Esto se hara con todos los laberintos.
 						break;
@@ -107,6 +125,8 @@ int main(){
 						Sleep(2000);
 						clrscr();
 						//Cargamos el fichero laberintoi.txt para jugar.
+						leer_laberinto_impares(laberintoi);
+						//mover();
 						break;
 					case 3:
 						clrscr();
@@ -114,6 +134,8 @@ int main(){
 						Sleep(2000);
 						clrscr();
 						//Cargamos el fichero laberintov.txt para jugar.
+						leer_laberinto_vocales(laberintov);
+						//mover();
 						break;
 					default:
 						break;
@@ -146,6 +168,96 @@ int main(){
 	}
 
 	return 0;
+}
+
+void ocultarCursor(){
+
+	HANDLE hCon;
+	hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO cci;
+	cci.dwSize = 2;
+	cci.bVisible = FALSE;
+
+	SetConsoleCursorInfo(hCon,&cci);
+}
+
+void mover(laberinto_pares laberintop){
+
+	ocultarCursor();
+
+	int tecla, fila, columna, ancho_fila, ancho_columna, x, y;
+	fila=0;
+	columna=0;
+	ancho_fila=20;
+	ancho_columna=40;
+	x=0;
+	y=4;
+
+	bool game_over=false;
+	while(!game_over){
+		if(kbhit()){
+			tecla = getch();
+			gotoxy(x, y);
+			printf(" ");
+			if(tecla == ARRIBA && y-2>fila){
+
+				if(laberintop[y-1][x]=='#'){
+
+					Beep(100,100);
+
+				}else{
+
+					y--;
+				}
+			}
+
+			if(tecla == ABAJO && y+1<ancho_fila){
+
+				if(laberintop[y][x]=='#'){
+
+					Beep(100,100);
+
+				}else{
+
+					y++;
+				}
+			}
+
+			if(tecla == IZQUIERDA && x-2>columna){
+
+				if(laberintop[y][x-2]=='#'){
+
+					Beep(100,100);
+
+				}else{
+
+					x--;
+				}
+			}
+
+			if(tecla == DERECHA && x+1<ancho_columna){
+
+				if(laberintop[y][x+1]=='#'){
+
+					Beep(100,100);
+
+				}else{
+
+					x++;
+				}
+			}
+
+			gotoxy(x,y);
+			printf("%c", char(219));
+
+			if(tecla == 27 /*TECLA ESC*/ || (x==39 && y==15) /*coordenadas S*/){
+				game_over=true;
+			}
+
+		}
+		Sleep(20);
+	}
+
 }
 
 int menu1(void){
@@ -224,6 +336,107 @@ void leer_fichero_jugadores(regis_jug rj, jugador j_aux){
 
 	fi_jugadores.close();
 
+}
+
+void leer_laberinto_pares(laberinto_pares laberintop){
+
+	ifstream fi_pares;
+
+	fi_pares.open("laberintop.txt");
+
+	if(!fi_pares.fail()){
+
+		while(!fi_pares.eof()){
+
+			for(int i=0; i<filas; i++){
+
+				for(int j=0; j<columnas; j++){
+
+					fi_pares>>laberintop[i][j];
+				}
+			}
+
+		}
+
+		for(int i=0; i<filas; i++){
+
+			for(int j=0; j<columnas; j++){
+
+				cout<<laberintop[i][j];
+			}
+			cout<<endl;
+		}
+	}
+
+	fi_pares.close();
+}
+
+void leer_laberinto_impares(laberinto_impares laberintoi){
+
+	ifstream fi_impares;
+
+	fi_impares.open("laberintoi.txt");
+
+	if(!fi_impares.fail()){
+
+		while(!fi_impares.eof()){
+
+			for(int i=0; i<filas; i++){
+
+				for(int j=0; j<columnas; j++){
+
+					fi_impares>>laberintoi[i][j];
+				}
+			}
+
+		}
+
+		for(int i=0; i<filas; i++){
+
+			for(int j=0; j<columnas; j++){
+
+				cout<<laberintoi[i][j];
+			}
+			cout<<endl;
+		}
+		Sleep(5000);
+	}
+
+	fi_impares.close();
+}
+
+void leer_laberinto_vocales(laberinto_vocales laberintov){
+
+	ifstream fi_vocales;
+
+	fi_vocales.open("laberintov.txt");
+
+	if(!fi_vocales.fail()){
+
+		while(!fi_vocales.eof()){
+
+			for(int i=0; i<filas; i++){
+
+				for(int j=0; j<columnas; j++){
+
+					fi_vocales>>laberintov[i][j];
+				}
+			}
+
+		}
+
+		for(int i=0; i<filas; i++){
+
+			for(int j=0; j<columnas; j++){
+
+				cout<<laberintov[i][j];
+			}
+			cout<<endl;
+		}
+		Sleep(5000);
+	}
+
+	fi_vocales.close();
 }
 
 void nuevo_jugador(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
