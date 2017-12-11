@@ -19,8 +19,8 @@
 #define maxnick 11
 #define maxnom 51
 #define maxjug 20
-#define columnas 40
-#define filas 20
+#define columnas 41
+#define filas 21
 #define ARRIBA 72
 #define ABAJO 80
 #define IZQUIERDA 75
@@ -57,8 +57,9 @@ void leer_laberinto_vocales(laberinto_pares laberintov);
 void nuevo_jugador(regis_jug rj, nick nickaux, 	jugador reg_jug, jugador j_aux);
 int buscar_nick(regis_jug rj, const nick nickaux);
 int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux);
-void fichero_jugadores(jugador j_aux, regis_jug rj, matriz_jugador jugadores);
+void fichero_jugadores(jugador j_aux, regis_jug rj);
 void mover(laberinto_pares laberintop);
+
 
 using namespace std;
 
@@ -69,7 +70,6 @@ int main(){
 	nick nickaux;
 	regis_jug rj;
 	jugador j_aux;
-	matriz_jugador jugadores;
 	laberinto_pares laberintop;
 	laberinto_impares laberintoi;
 	laberinto_vocales laberintov;
@@ -159,7 +159,10 @@ int main(){
 			Sleep(2000);
 			clrscr();
 			//Mostramos el fichero jugadores.txt
-			fichero_jugadores(j_aux, rj, jugadores);
+			leer_laberinto_pares(laberintop);
+			mover(laberintop);
+			//leer_fichero_jugadores(rj, j_aux);
+			//fichero_jugadores(j_aux, rj);
 			break;
 		default:
 			break;
@@ -204,7 +207,7 @@ void mover(laberinto_pares laberintop){
 
 				if(laberintop[y-1][x]=='#'){
 
-					Beep(100,100);
+					y++;
 
 				}else{
 
@@ -214,9 +217,9 @@ void mover(laberinto_pares laberintop){
 
 			if(tecla == ABAJO && y+1<ancho_fila){
 
-				if(laberintop[y][x]=='#'){
+				if(laberintop[y+1][x]=='#'){
 
-					Beep(100,100);
+					y--;
 
 				}else{
 
@@ -226,9 +229,9 @@ void mover(laberinto_pares laberintop){
 
 			if(tecla == IZQUIERDA && x-2>columna){
 
-				if(laberintop[y][x-2]=='#'){
+				if(laberintop[y][x-1]=='#'){
 
-					Beep(100,100);
+					x++;
 
 				}else{
 
@@ -240,7 +243,7 @@ void mover(laberinto_pares laberintop){
 
 				if(laberintop[y][x+1]=='#'){
 
-					Beep(100,100);
+					x--;
 
 				}else{
 
@@ -315,24 +318,27 @@ void leer_fichero_jugadores(regis_jug rj, jugador j_aux){
 
 	ifstream fi_jugadores;
 
-	fi_jugadores.open("jugadores.txt",ios::binary);
+	fi_jugadores.open("jugadores.txt");
 
 	if(!fi_jugadores.fail()){
 
 		//leemos el fichero y lo vamos guardando en el vector
 		rj.cont=0;
 		fi_jugadores>>j_aux.minick;
+
 		while(!fi_jugadores.eof()){
 
-			fi_jugadores>>rj.vj[rj.cont].minick;
+			strcpy(rj.vj[rj.cont].minick,j_aux.minick);
 			fi_jugadores>>rj.vj[rj.cont].minombre;
 			fi_jugadores>>rj.vj[rj.cont].nacion;
 			fi_jugadores>>rj.vj[rj.cont].edad;
 			fi_jugadores>>rj.vj[rj.cont].puntos;
 
+
 			rj.cont++;
 
 		}
+
 	}
 
 	fi_jugadores.close();
@@ -362,18 +368,20 @@ void leer_laberinto_pares(laberinto_pares laberintop){
 			fi_pares>>c1;
 			i++;
 		}
-
-		for(int i=0; i<filas; i++){
-
-			for(int j=0; j<columnas; j++){
-
-				cout<<laberintop[i][j];
-			}
-			cout<<endl;
-		}
 	}
 
 	fi_pares.close();
+
+
+	for(int i=0; i<filas; i++){
+
+		for(int j=0; j<columnas; j++){
+
+			cout<<laberintop[i][j];
+		}
+		cout<<endl;
+	}
+
 }
 
 void leer_laberinto_impares(laberinto_impares laberintoi){
@@ -507,7 +515,7 @@ void nuevo_jugador(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
 	cout<<"Introduzca su edad:";
 	cin>>reg_jug.edad;
 
-	//Guardamos en el archivo el jugador nuevo
+	/*//Guardamos en el archivo el jugador nuevo
 
 	fo_jugadores.open("jugadores.txt",ios::app);
 
@@ -521,7 +529,7 @@ void nuevo_jugador(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
 
 	}
 
-	fo_jugadores.close();
+	fo_jugadores.close();*/
 
 	clrscr();
 	cout<<"Jugador registrado correctamente."<<endl;
@@ -531,9 +539,9 @@ void nuevo_jugador(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
 
 int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
 
-	int i, posaux;;
+	int posaux;;
 
-	ifstream fi_jugadores;
+	/*ifstream fi_jugadores;
 
 	rj.cont=0;
 
@@ -557,7 +565,7 @@ int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_au
 		}
 	}
 
-	fi_jugadores.close();
+	fi_jugadores.close();*/
 
 	cout<<"Introduzca su nick:";
 	cin>>nickaux;
@@ -567,13 +575,13 @@ int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_au
 
 }
 
-void fichero_jugadores(jugador j_aux, regis_jug rj, matriz_jugador jugadores){
+void fichero_jugadores(jugador j_aux, regis_jug rj){
 
-	leer_fichero_jugadores(rj, j_aux);
+	//leer_fichero_jugadores(rj, j_aux);
 
 	//Muestra el fichero jugadores.txt
 
-	for(int i=0; i<rj.cont; i++){
+	/*for(int i=0; i<rj.cont; i++){
 
 		cout<<rj.vj[i].minick<<" ";
 		cout<<rj.vj[i].minombre<<" ";
@@ -581,7 +589,9 @@ void fichero_jugadores(jugador j_aux, regis_jug rj, matriz_jugador jugadores){
 		cout<<rj.vj[i].edad<<" ";
 		cout<<rj.vj[i].puntos<<endl;
 
-	}
+	}*/
+
+	cout<<rj.vj[1].minick<<" ";
 
 	Sleep(5000);
 }
