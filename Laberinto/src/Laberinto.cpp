@@ -45,6 +45,7 @@ typedef struct{
 	vec_jug vj;
 	int cont;
 }regis_jug;
+typedef char cadena_columna[columnas];
 
 //Cabeceras de modulos
 int menu1(void);
@@ -313,22 +314,22 @@ int menu2(void){
 void leer_fichero_jugadores(regis_jug rj, jugador j_aux){
 
 	ifstream fi_jugadores;
-	int i;
 
 	fi_jugadores.open("jugadores.txt",ios::binary);
 
 	if(!fi_jugadores.fail()){
 
 		//leemos el fichero y lo vamos guardando en el vector
-		i=0;
+		rj.cont=0;
+		fi_jugadores>>j_aux.minick;
 		while(!fi_jugadores.eof()){
 
-			fi_jugadores>>rj.vj[i].minick;
-			fi_jugadores>>rj.vj[i].minombre;
-			fi_jugadores>>rj.vj[i].nacion;
-			fi_jugadores>>rj.vj[i].edad;
-			fi_jugadores>>rj.vj[i].puntos;
-			i++;
+			fi_jugadores>>rj.vj[rj.cont].minick;
+			fi_jugadores>>rj.vj[rj.cont].minombre;
+			fi_jugadores>>rj.vj[rj.cont].nacion;
+			fi_jugadores>>rj.vj[rj.cont].edad;
+			fi_jugadores>>rj.vj[rj.cont].puntos;
+
 			rj.cont++;
 
 		}
@@ -340,22 +341,26 @@ void leer_fichero_jugadores(regis_jug rj, jugador j_aux){
 
 void leer_laberinto_pares(laberinto_pares laberintop){
 
+	int i;
 	ifstream fi_pares;
+	cadena_columna c1;
 
 	fi_pares.open("laberintop.txt");
 
 	if(!fi_pares.fail()){
 
+		fi_pares>>c1;
+
+		i=0;
 		while(!fi_pares.eof()){
 
-			for(int i=0; i<filas; i++){
+			for(int j=0; j<columnas; j++){
 
-				for(int j=0; j<columnas; j++){
-
-					fi_pares>>laberintop[i][j];
-				}
+				laberintop[i][j]=c1[j];
 			}
 
+			fi_pares>>c1;
+			i++;
 		}
 
 		for(int i=0; i<filas; i++){
