@@ -50,13 +50,13 @@ typedef char cadena_columna[columnas];
 //Cabeceras de modulos
 int menu1(void);
 int menu2(void);
-void leer_fichero_jugadores(regis_jug rj, jugador j_aux);
+void leer_fichero_jugadores(regis_jug & rj, jugador reg_jug);
 void leer_laberinto_pares(laberinto_pares laberintop);
 void leer_laberinto_impares(laberinto_pares laberintoi);
 void leer_laberinto_vocales(laberinto_pares laberintov);
-void nuevo_jugador(regis_jug rj, nick nickaux, 	jugador reg_jug, jugador j_aux);
+void nuevo_jugador(regis_jug & rj, nick nickaux, jugador reg_jug);
 int buscar_nick(regis_jug rj, const nick nickaux);
-int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux);
+int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug);
 void fichero_jugadores(jugador j_aux, regis_jug rj);
 void mover(laberinto_pares laberintop);
 
@@ -67,12 +67,14 @@ int main(){
 
 	int opcion1, opcion2, registrado;
 	jugador reg_jug;
-	nick nickaux;
 	regis_jug rj;
-	jugador j_aux;
+	nick nickaux;
+	//jugador j_aux;
 	laberinto_pares laberintop;
 	laberinto_impares laberintoi;
 	laberinto_vocales laberintov;
+
+	rj.cont=0;
 
 	clrscr();
 	opcion1=menu1();
@@ -86,7 +88,7 @@ int main(){
 			Sleep(2000);
 			clrscr();
 			//Registramos nuevo usuario y comprobamos si el nick ya existe para que use otro
-			nuevo_jugador(rj, nickaux, reg_jug, j_aux);
+			nuevo_jugador(rj, nickaux, reg_jug);
 			//Cuando acabemos el proceso de registro de usuario, volveremos al menu1();
 			break;
 		case 2:
@@ -96,7 +98,7 @@ int main(){
 			clrscr();
 			//Comprobamos si el nick está ya registrado para usarlo en el laberinto.
 			//Si existe, pasamos al menu2(); donde elegira a que tipo de laberinto quieres jugar.
-			registrado=usuario_registrado(rj, nickaux,reg_jug, j_aux);
+			registrado=usuario_registrado(rj, nickaux, reg_jug);
 			if(registrado !=-1){
 
 				clrscr();
@@ -159,9 +161,10 @@ int main(){
 			Sleep(2000);
 			clrscr();
 			//Mostramos el fichero jugadores.txt
-			leer_laberinto_pares(laberintop);
-			mover(laberintop);
-			//leer_fichero_jugadores(rj, j_aux);
+			//leer_laberinto_pares(laberintop);
+			//mover(laberintop);
+			leer_fichero_jugadores(rj, reg_jug);
+			fichero_jugadores(reg_jug, rj);
 			//fichero_jugadores(j_aux, rj);
 			break;
 		default:
@@ -314,28 +317,30 @@ int menu2(void){
 
 }
 
-void leer_fichero_jugadores(regis_jug rj, jugador j_aux){
+void leer_fichero_jugadores(regis_jug & rj, jugador reg_jug){
 
 	ifstream fi_jugadores;
+	int i;
 
 	fi_jugadores.open("jugadores.txt");
 
 	if(!fi_jugadores.fail()){
 
 		//leemos el fichero y lo vamos guardando en el vector
-		rj.cont=0;
-		fi_jugadores>>j_aux.minick;
+		fi_jugadores>>reg_jug.minick;
+		i=0;
 
 		while(!fi_jugadores.eof()){
 
-			strcpy(rj.vj[rj.cont].minick,j_aux.minick);
-			fi_jugadores>>rj.vj[rj.cont].minombre;
-			fi_jugadores>>rj.vj[rj.cont].nacion;
-			fi_jugadores>>rj.vj[rj.cont].edad;
-			fi_jugadores>>rj.vj[rj.cont].puntos;
+			strcpy(rj.vj[i].minick, reg_jug.minick);
+			fi_jugadores>>rj.vj[i].minombre;
+			fi_jugadores>>rj.vj[i].nacion;
+			fi_jugadores>>rj.vj[i].edad;
+			fi_jugadores>>rj.vj[i].puntos;
 
-
+			i++;
 			rj.cont++;
+			fi_jugadores>>reg_jug.minick;
 
 		}
 
@@ -452,36 +457,9 @@ void leer_laberinto_vocales(laberinto_vocales laberintov){
 	fi_vocales.close();
 }
 
-void nuevo_jugador(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
+void nuevo_jugador(regis_jug & rj, nick nickaux, jugador reg_jug){
 
-	int i, posaux;;
-
-	ofstream fo_jugadores;
-	ifstream fi_jugadores;
-
-	rj.cont=0;
-
-	fi_jugadores.open("jugadores.txt");
-
-	if(!fi_jugadores.fail()){
-
-		//leemos el fichero y lo vamos guardando en el vector
-		fi_jugadores>>j_aux.minick;
-		i=0;
-		while(!fi_jugadores.eof()){
-
-			strcpy(rj.vj[i].minick,j_aux.minick); //Funcion para copiar el contenido de una cadena a otra.
-			fi_jugadores>>rj.vj[i].minombre;
-			fi_jugadores>>rj.vj[i].nacion;
-			fi_jugadores>>rj.vj[i].edad;
-			fi_jugadores>>rj.vj[i].puntos;
-			i++;
-			rj.cont++;
-			fi_jugadores>>j_aux.minick;
-		}
-	}
-
-	fi_jugadores.close();
+	int posaux;
 
 	//Introducimos los datos en el registro jugador reg_jug para despues volcarlo en el fichero.
 
@@ -495,6 +473,7 @@ void nuevo_jugador(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
 		posaux = buscar_nick(rj, nickaux);
 
 	}
+
 	strcpy(reg_jug.minick, nickaux); //Funcion para copiar el contenido de una cadena a otra.
 
 	cout<<"Introduzca su nombre y apellidos (Sin espacios):";
@@ -515,6 +494,8 @@ void nuevo_jugador(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
 	cout<<"Introduzca su edad:";
 	cin>>reg_jug.edad;
 
+	reg_jug.puntos=0; //Lo inicializamos a 0
+
 	/*//Guardamos en el archivo el jugador nuevo
 
 	fo_jugadores.open("jugadores.txt",ios::app);
@@ -533,39 +514,14 @@ void nuevo_jugador(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
 
 	clrscr();
 	cout<<"Jugador registrado correctamente."<<endl;
+
 	Sleep(2000);
 
 }
 
-int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_aux){
+int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug){
 
 	int posaux;;
-
-	/*ifstream fi_jugadores;
-
-	rj.cont=0;
-
-	fi_jugadores.open("jugadores.txt");
-
-	if(!fi_jugadores.fail()){
-
-		//leemos el fichero y lo vamos guardando en el vector
-		fi_jugadores>>j_aux.minick;
-		i=0;
-		while(!fi_jugadores.eof()){
-
-			strcpy(rj.vj[i].minick,j_aux.minick); //Funcion para copiar el contenido de una cadena a otra.
-			fi_jugadores>>rj.vj[i].minombre;
-			fi_jugadores>>rj.vj[i].nacion;
-			fi_jugadores>>rj.vj[i].edad;
-			fi_jugadores>>rj.vj[i].puntos;
-			i++;
-			rj.cont++;
-			fi_jugadores>>j_aux.minick;
-		}
-	}
-
-	fi_jugadores.close();*/
 
 	cout<<"Introduzca su nick:";
 	cin>>nickaux;
@@ -575,13 +531,13 @@ int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug, jugador j_au
 
 }
 
-void fichero_jugadores(jugador j_aux, regis_jug rj){
+void fichero_jugadores(jugador reg_jug, regis_jug rj){
 
 	//leer_fichero_jugadores(rj, j_aux);
 
 	//Muestra el fichero jugadores.txt
 
-	/*for(int i=0; i<rj.cont; i++){
+	for(int i=0; i<rj.cont; i++){
 
 		cout<<rj.vj[i].minick<<" ";
 		cout<<rj.vj[i].minombre<<" ";
@@ -589,17 +545,19 @@ void fichero_jugadores(jugador j_aux, regis_jug rj){
 		cout<<rj.vj[i].edad<<" ";
 		cout<<rj.vj[i].puntos<<endl;
 
-	}*/
+	}
 
-	cout<<rj.vj[1].minick<<" ";
+
 
 	Sleep(5000);
 }
 
 int buscar_nick (regis_jug rj, const nick nickaux){
 
-	int i=0;
-	int posicion=-1;
+	int i, posicion;
+
+	i=0;
+	posicion=-1;
 
 	while (i<rj.cont && posicion==-1){
 
