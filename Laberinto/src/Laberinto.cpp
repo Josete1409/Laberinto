@@ -1004,7 +1004,6 @@ void cargar_laberinto_pares(laberinto_pares laberintop){
 		}
 		cout<<endl;
 	}
-	Sleep(2000);
 }
 
 void cargar_laberinto_impares(laberinto_impares laberintoi){
