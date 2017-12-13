@@ -283,9 +283,7 @@ void leer_fichero_jugadores(regis_jug & rj){
 		}
 
 	}
-
 	fi_jugadores.close();
-
 }
 
 void leer_laberinto_pares(laberinto_pares laberintop, cadena_columna cp){
@@ -416,6 +414,7 @@ void nuevo_jugador(regis_jug & rj, nick nickaux, jugador reg_jug){
 
 	clrscr();
 	cout<<"Jugador registrado correctamente."<<endl;
+	rj.vj[rj.cont]=reg_jug;
 
 	Sleep(2000);
 
@@ -611,7 +610,8 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 			printf("%c", char(219));
 			textcolor(WHITE);
 
-			if(laberintop[y-5][x-5] == ' ' || laberintop[y-5][x-5] == 'E' || laberintop[y-5][x-5] == 'S'){
+			if(laberintop[y-5][x-5] == ' ' || laberintop[y-5][x-5] == 'E' ||
+			   laberintop[y-5][x-5] == 'S'){
 
 
 			}else{
