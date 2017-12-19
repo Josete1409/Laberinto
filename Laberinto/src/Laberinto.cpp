@@ -29,6 +29,7 @@
 #define F2 60 //(salto-izquierda)
 #define F3 61 //(salto-arriba)
 #define F4 62 //(salto-abajo)
+#define maxargv 32
 
 //Tipos de datos
 typedef char nombre[maxnom];
@@ -41,156 +42,172 @@ typedef struct{
 	int puntos;
 }jugador;
 typedef jugador vec_jug[maxjug];
-typedef char laberinto_pares[filas][columnas];
-typedef char laberinto_impares[filas][columnas];
-typedef char laberinto_vocales[filas][columnas];
+typedef char laberinto[filas][columnas];
 typedef struct{
 	vec_jug vj;
 	int cont;
 }regis_jug;
 typedef char cadena_columna[columnas];
+typedef char argumentos[maxargv];
 
 //Cabeceras de modulos
 int menu1(void);
 int menu2(void);
-void leer_fichero_jugadores(regis_jug & rj);
-void leer_laberinto_pares(laberinto_pares laberintop, cadena_columna cp);
-void leer_laberinto_impares(laberinto_impares laberintoi, cadena_columna ci);
-void leer_laberinto_vocales(laberinto_vocales laberintov, cadena_columna cv);
-void nuevo_jugador(regis_jug & rj, nick nickaux, jugador reg_jug);
+void leer_fichero_jugadores(const argumentos a0, regis_jug & rj);
+void leer_laberinto_pares(const argumentos a1, laberinto laberintop, cadena_columna cp);
+void leer_laberinto_impares(const argumentos a2, laberinto laberintoi, cadena_columna ci);
+void leer_laberinto_vocales(const argumentos a3, laberinto laberintov, cadena_columna cv);
+void nuevo_jugador(argumentos a0, regis_jug & rj, nick nickaux, jugador reg_jug);
 int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug);
-void fichero_jugadores(jugador reg_jug, regis_jug rj);
+void fichero_jugadores(regis_jug rj);
 int buscar_nick(regis_jug rj, nick nickaux);
-void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux);
-void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux);
-void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux);
-void cargar_laberinto_pares(laberinto_pares laberintop);
-void cargar_laberinto_impares(laberinto_impares laberintoi);
-void cargar_laberinto_vocales(laberinto_vocales laberintov);
+void mover_pares(laberinto laberintop, regis_jug & rj, nick nickaux);
+void mover_impares(laberinto laberintoi, regis_jug & rj, nick nickaux);
+void mover_vocales(laberinto laberintov, regis_jug & rj, nick nickaux);
+void cargar_laberinto_pares(laberinto laberintop);
+void cargar_laberinto_impares(laberinto laberintoi);
+void cargar_laberinto_vocales(laberinto laberintov);
 int mostrar_puntuacion(int puntos);
-void actualizar_fichero_jugadores(regis_jug & rj);
+void actualizar_fichero_jugadores(argumentos a0, regis_jug & rj);
 
 
 using namespace std;
 
-int main(){
+int main(int argc, char * argv[]){
 
-	int opcion1, opcion2, registrado;
-	jugador reg_jug;
-	regis_jug rj;
-	nick nickaux;
-	laberinto_pares laberintop;
-	laberinto_impares laberintoi;
-	laberinto_vocales laberintov;
-	cadena_columna cp;
-	cadena_columna ci;
-	cadena_columna cv;
+	if(argc!=5){
 
-	rj.cont=0;
+		cout<<"Error al pasar los argumentos, debe de ejecutar el "<<endl;
+		cout<<"programa con el nombre del fichero de jugadores, un espacio y "<<endl;
+		cout<<"el nombre del fichero de laberinto pares, un espacio y "<<endl;
+		cout<<"el nombre del fichero de laberinto impares, un espacio y "<<endl;
+		cout<<"el nombre del fichero de laberinto vocales."<<endl;
 
-	leer_fichero_jugadores(rj);
+	}else{
 
-	clrscr();
-	opcion1=menu1();
+		int opcion1, opcion2, registrado;
+		jugador reg_jug;
+		regis_jug rj;
+		nick nickaux;
+		laberinto laberintop;
+		laberinto laberintoi;
+		laberinto laberintov;
+		cadena_columna cp;
+		cadena_columna ci;
+		cadena_columna cv;
+		//argv[1] -- Fichero jugadores
+		//argv[2] -- Fichero laberinto pares
+		//argv[3] -- Fichero laberinto impares
+		//argv[4] -- Fichero laberinto vocales
 
-	while(opcion1!=4){
+		rj.cont=0;
 
-		switch (opcion1) {
-		case 1:
-			clrscr();
-			cout<<"**************** Registrar jugador. ****************"<<endl;
-			Sleep(2000);
-			clrscr();
-			//Registramos nuevo usuario y comprobamos si el nick ya existe para que use otro
-			nuevo_jugador(rj, nickaux, reg_jug);
-			//Cuando acabemos el proceso de registro de usuario, volveremos al menu1();
-			break;
-		case 2:
-			clrscr();
-			cout<<"**************** Jugador existente. ****************"<<endl;
-			Sleep(2000);
-			clrscr();
-			//Comprobamos si el nick está ya registrado para usarlo en el laberinto.
-			//Si existe, pasamos al menu2(); donde elegira a que tipo de laberinto quieres jugar.
-			registrado=usuario_registrado(rj, nickaux, reg_jug);
-			if(registrado !=-1){
+		leer_fichero_jugadores(argv[1], rj);
 
+		clrscr();
+		opcion1=menu1();
+
+		while(opcion1!=4){
+
+			switch (opcion1) {
+			case 1:
 				clrscr();
-
-				cout<<"Su usuario esta registrado"<<endl;
+				cout<<"**************** Registrar jugador. ****************"<<endl;
 				Sleep(2000);
+				clrscr();
+				//Registramos nuevo usuario y comprobamos si el nick ya existe para que use otro
+				nuevo_jugador(argv[1], rj, nickaux, reg_jug);
+				//Cuando acabemos el proceso de registro de usuario, volveremos al menu1();
+				break;
+			case 2:
+				clrscr();
+				cout<<"**************** Jugador existente. ****************"<<endl;
+				Sleep(2000);
+				clrscr();
+				//Comprobamos si el nick está ya registrado para usarlo en el laberinto.
+				//Si existe, pasamos al menu2(); donde elegira a que tipo de laberinto quieres jugar.
+				registrado=usuario_registrado(rj, nickaux, reg_jug);
+				if(registrado !=-1){
 
-				opcion2=menu2();
+					clrscr();
 
-				while(opcion2!=4){
-
-					switch (opcion2) {
-					case 1:
-						clrscr();
-						cout<<"**************** Caza de numeros pares.****************"<<endl;
-						Sleep(2000);
-						clrscr();
-						//Cargamos el fichero laberintop.txt para jugar.
-						leer_laberinto_pares(laberintop, cp);
-						cargar_laberinto_pares(laberintop);
-						mover_pares(laberintop, rj, nickaux);
-						//Una vez que el usuario llegue a la salida o pulse Esc, si la puntuacion obtenida es mayor a la que ya tenia o no tenia
-						//ninguna se actualizara en caso contrario se quedará la que ya tenia. Esto se hara con todos los laberintos.
-						break;
-					case 2:
-						clrscr();
-						cout<<"**************** Caza de numeros impares. ****************"<<endl;
-						Sleep(2000);
-						clrscr();
-						//Cargamos el fichero laberintoi.txt para jugar.
-						leer_laberinto_impares(laberintoi, ci);
-						cargar_laberinto_impares(laberintoi);
-						mover_impares(laberintoi, rj, nickaux);
-						break;
-					case 3:
-						clrscr();
-						cout<<"**************** Caza de vocales. ****************"<<endl;
-						Sleep(2000);
-						clrscr();
-						//Cargamos el fichero laberintov.txt para jugar.
-						leer_laberinto_vocales(laberintov, cv);
-						cargar_laberinto_vocales(laberintov);
-						mover_vocales(laberintov, rj, nickaux);
-						break;
-					default:
-						break;
-					}
+					cout<<"Su usuario esta registrado"<<endl;
+					Sleep(2000);
 
 					opcion2=menu2();
+
+					while(opcion2!=4){
+
+						switch (opcion2) {
+						case 1:
+							clrscr();
+							cout<<"**************** Caza de numeros pares.****************"<<endl;
+							Sleep(2000);
+							clrscr();
+							//Cargamos el fichero laberintop.txt para jugar.
+							leer_laberinto_pares(argv[2], laberintop, cp);
+							cargar_laberinto_pares(laberintop);
+							mover_pares(laberintop, rj, nickaux);
+							//Una vez que el usuario llegue a la salida o pulse Esc, si la puntuacion obtenida es mayor a la que ya tenia o no tenia
+							//ninguna se actualizara en caso contrario se quedará la que ya tenia. Esto se hara con todos los laberintos.
+							break;
+						case 2:
+							clrscr();
+							cout<<"**************** Caza de numeros impares. ****************"<<endl;
+							Sleep(2000);
+							clrscr();
+							//Cargamos el fichero laberintoi.txt para jugar.
+							leer_laberinto_impares(argv[3], laberintoi, ci);
+							cargar_laberinto_impares(laberintoi);
+							mover_impares(laberintoi, rj, nickaux);
+							break;
+						case 3:
+							clrscr();
+							cout<<"**************** Caza de vocales. ****************"<<endl;
+							Sleep(2000);
+							clrscr();
+							//Cargamos el fichero laberintov.txt para jugar.
+							leer_laberinto_vocales(argv[4], laberintov, cv);
+							cargar_laberinto_vocales(laberintov);
+							mover_vocales(laberintov, rj, nickaux);
+							break;
+						default:
+							break;
+						}
+
+						opcion2=menu2();
+					}
+				}else{
+
+					clrscr();
+
+					cout<<"Su usuario no esta registrado, registrelo antes de jugar."<<endl;
+					Sleep(2000);
+
 				}
-			}else{
-
+				break;
+			case 3:
 				clrscr();
-
-				cout<<"Su usuario no esta registrado, registrelo antes de jugar."<<endl;
+				cout<<"**************** Mostrar fichero de jugadores. ****************"<<endl;
 				Sleep(2000);
-
+				clrscr();
+				//Mostramos el fichero jugadores.txt
+				fichero_jugadores(rj);
+				break;
+			default:
+				break;
 			}
-			break;
-		case 3:
-			clrscr();
-			cout<<"**************** Mostrar fichero de jugadores. ****************"<<endl;
-			Sleep(2000);
-			clrscr();
-			//Mostramos el fichero jugadores.txt
-			fichero_jugadores(reg_jug, rj);
-			break;
-		default:
-			break;
+
+			opcion1=menu1();
 		}
 
-		opcion1=menu1();
-	}
+		actualizar_fichero_jugadores(argv[1], rj);
 
-	actualizar_fichero_jugadores(rj);
+	}
 
 	return 0;
 }
+
 
 void ocultarCursor(){
 
@@ -202,6 +219,7 @@ void ocultarCursor(){
 
 	SetConsoleCursorInfo(hCon,&cci);
 }
+
 
 int menu1(void){
 
@@ -228,6 +246,7 @@ int menu1(void){
 
 }
 
+
 int menu2(void){
 
 	int opcion2;
@@ -253,13 +272,14 @@ int menu2(void){
 
 }
 
-void leer_fichero_jugadores(regis_jug & rj){
+
+void leer_fichero_jugadores(const argumentos a0, regis_jug & rj){
 
 	ifstream fi_jugadores;
 	jugador reg_jug;
 	int i;
 
-	fi_jugadores.open("jugadores.txt");
+	fi_jugadores.open(a0);
 
 	if(!fi_jugadores.fail()){
 
@@ -286,12 +306,13 @@ void leer_fichero_jugadores(regis_jug & rj){
 	fi_jugadores.close();
 }
 
-void leer_laberinto_pares(laberinto_pares laberintop, cadena_columna cp){
+
+void leer_laberinto_pares(const argumentos a1, laberinto laberintop, cadena_columna cp){
 
 	int i;
 	ifstream fi_pares;
 
-	fi_pares.open("laberintop.txt");
+	fi_pares.open(a1);
 
 	if(!fi_pares.fail()){
 
@@ -315,12 +336,13 @@ void leer_laberinto_pares(laberinto_pares laberintop, cadena_columna cp){
 
 }
 
-void leer_laberinto_impares(laberinto_impares laberintoi, cadena_columna ci){
+
+void leer_laberinto_impares(const argumentos a2, laberinto laberintoi, cadena_columna ci){
 
 	int i;
 	ifstream fi_impares;
 
-	fi_impares.open("laberintoi.txt");
+	fi_impares.open(a2);
 
 	if(!fi_impares.fail()){
 
@@ -344,12 +366,13 @@ void leer_laberinto_impares(laberinto_impares laberintoi, cadena_columna ci){
 
 }
 
-void leer_laberinto_vocales(laberinto_vocales laberintov, cadena_columna cv){
+
+void leer_laberinto_vocales(const argumentos a3, laberinto laberintov, cadena_columna cv){
 
 	int i;
 	ifstream fi_vocales;
 
-	fi_vocales.open("laberintov.txt");
+	fi_vocales.open(a3);
 
 	if(!fi_vocales.fail()){
 
@@ -373,7 +396,7 @@ void leer_laberinto_vocales(laberinto_vocales laberintov, cadena_columna cv){
 
 }
 
-void nuevo_jugador(regis_jug & rj, nick nickaux, jugador reg_jug){
+void nuevo_jugador(argumentos a0, regis_jug & rj, nick nickaux, jugador reg_jug){
 
 	int posaux;
 
@@ -424,10 +447,11 @@ void nuevo_jugador(regis_jug & rj, nick nickaux, jugador reg_jug){
 	Sleep(2000);
 
 	rj.cont++;
-	actualizar_fichero_jugadores(rj);
-	leer_fichero_jugadores(rj);
+	actualizar_fichero_jugadores(a0, rj);
+	leer_fichero_jugadores(a0, rj);
 
 }
+
 
 int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug){
 
@@ -441,7 +465,8 @@ int usuario_registrado(regis_jug rj, nick nickaux, jugador reg_jug){
 
 }
 
-void fichero_jugadores(jugador reg_jug, regis_jug rj){
+
+void fichero_jugadores(regis_jug rj){
 
 	//Muestra el fichero jugadores.txt
 
@@ -459,6 +484,7 @@ void fichero_jugadores(jugador reg_jug, regis_jug rj){
 
 	Sleep(5000);
 }
+
 
 int buscar_nick (regis_jug rj, nick nickaux){
 
@@ -483,7 +509,8 @@ int buscar_nick (regis_jug rj, nick nickaux){
 	return posicion;
 }
 
-void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
+
+void mover_pares(laberinto laberintop, regis_jug & rj, nick nickaux){
 
 	ocultarCursor();
 
@@ -507,7 +534,9 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 
 			mostrar_puntuacion(puntos);
 
-			if(tecla == F1){ //Satar-Derecha
+			switch (tecla) {
+
+			case F1:
 
 				if(laberintop[y-5][(x-5)+2] == pared){
 
@@ -517,9 +546,9 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 
 					x=x+2;
 				}
-			}
+				break;
 
-			if(tecla == F2){ //Satar-Izquierda
+			case F2:
 
 				if(laberintop[y-5][(x-5)-2] == pared){
 
@@ -529,9 +558,9 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 
 					x=x-2;
 				}
-			}
+				break;
 
-			if(tecla == F3){ //Satar-Arriba
+			case F3:
 
 				if(laberintop[(y-2)-5][x-5] == pared){
 
@@ -542,9 +571,9 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 					y=y-2;
 
 				}
-			}
+				break;
 
-			if(tecla == F4){ //Satar-Abajo
+			case F4:
 
 				if(laberintop[y+2-5][x-5] == pared){
 
@@ -555,9 +584,9 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 					y=y+2;
 
 				}
-			}
+				break;
 
-			if(tecla == ARRIBA){
+			case ARRIBA:
 
 				if(laberintop[y-1-5][x-5] == pared){
 
@@ -567,9 +596,9 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 
 					y--;
 				}
-			}
+				break;
 
-			if(tecla == ABAJO){
+			case ABAJO:
 
 				if(laberintop[y+1-5][x-5] == pared){
 
@@ -579,21 +608,9 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 
 					y++;
 				}
-			}
+				break;
 
-			if(tecla == IZQUIERDA){
-
-				if(laberintop[y-5][x-1-5] == pared){
-
-					Beep(250, 100);
-
-				}else{
-
-					x--;
-				}
-			}
-
-			if(tecla == DERECHA){
+			case DERECHA:
 
 				if(laberintop[y-5][x+1-5] == pared){
 
@@ -603,6 +620,24 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 
 					x++;
 				}
+				break;
+
+			case IZQUIERDA:
+
+				if(laberintop[y-5][x-1-5] == pared){
+
+					Beep(250, 100);
+
+				}else{
+
+					x--;
+				}
+				break;
+
+			default:
+
+				break;
+
 			}
 
 			gotoxy(x,y);
@@ -611,7 +646,7 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 			textcolor(WHITE);
 
 			if(laberintop[y-5][x-5] == ' ' || laberintop[y-5][x-5] == 'E' ||
-			   laberintop[y-5][x-5] == 'S'){
+					laberintop[y-5][x-5] == 'S'){
 
 
 			}else{
@@ -651,7 +686,7 @@ void mover_pares(laberinto_pares laberintop, regis_jug & rj, nick nickaux){
 
 }
 
-void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
+void mover_impares(laberinto laberintoi, regis_jug & rj, nick nickaux){
 
 	ocultarCursor();
 
@@ -675,7 +710,9 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 
 			mostrar_puntuacion(puntos);
 
-			if(tecla == F1){ //Satar-Derecha
+			switch (tecla) {
+
+			case F1:
 
 				if(laberintoi[y-5][(x-5)+2] == pared){
 
@@ -685,9 +722,9 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 
 					x=x+2;
 				}
-			}
+				break;
 
-			if(tecla == F2){ //Satar-Izquierda
+			case F2:
 
 				if(laberintoi[y-5][(x-5)-2] == pared){
 
@@ -697,9 +734,9 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 
 					x=x-2;
 				}
-			}
+				break;
 
-			if(tecla == F3){ //Satar-Arriba
+			case F3:
 
 				if(laberintoi[(y-2)-5][x-5] == pared){
 
@@ -710,9 +747,9 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 					y=y-2;
 
 				}
-			}
+				break;
 
-			if(tecla == F4){ //Satar-Abajo
+			case F4:
 
 				if(laberintoi[y+2-5][x-5] == pared){
 
@@ -723,9 +760,9 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 					y=y+2;
 
 				}
-			}
+				break;
 
-			if(tecla == ARRIBA){
+			case ARRIBA:
 
 				if(laberintoi[y-1-5][x-5] == pared){
 
@@ -735,9 +772,9 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 
 					y--;
 				}
-			}
+				break;
 
-			if(tecla == ABAJO){
+			case ABAJO:
 
 				if(laberintoi[y+1-5][x-5] == pared){
 
@@ -747,21 +784,9 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 
 					y++;
 				}
-			}
+				break;
 
-			if(tecla == IZQUIERDA){
-
-				if(laberintoi[y-5][x-1-5] == pared){
-
-					Beep(250, 100);
-
-				}else{
-
-					x--;
-				}
-			}
-
-			if(tecla == DERECHA){
+			case DERECHA:
 
 				if(laberintoi[y-5][x+1-5] == pared){
 
@@ -771,6 +796,24 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 
 					x++;
 				}
+				break;
+
+			case IZQUIERDA:
+
+				if(laberintoi[y-5][x-1-5] == pared){
+
+					Beep(250, 100);
+
+				}else{
+
+					x--;
+				}
+				break;
+
+			default:
+
+				break;
+
 			}
 
 			gotoxy(x,y);
@@ -818,7 +861,7 @@ void mover_impares(laberinto_impares laberintoi, regis_jug & rj, nick nickaux){
 
 }
 
-void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
+void mover_vocales(laberinto laberintov, regis_jug & rj, nick nickaux){
 
 	ocultarCursor();
 
@@ -842,7 +885,9 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 
 			mostrar_puntuacion(puntos);
 
-			if(tecla == F1){ //Satar-Derecha
+			switch (tecla) {
+
+			case F1:
 
 				if(laberintov[y-5][(x-5)+2] == pared){
 
@@ -852,9 +897,9 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 
 					x=x+2;
 				}
-			}
+				break;
 
-			if(tecla == F2){ //Satar-Izquierda
+			case F2:
 
 				if(laberintov[y-5][(x-5)-2] == pared){
 
@@ -864,9 +909,9 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 
 					x=x-2;
 				}
-			}
+				break;
 
-			if(tecla == F3){ //Satar-Arriba
+			case F3:
 
 				if(laberintov[(y-2)-5][x-5] == pared){
 
@@ -877,9 +922,9 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 					y=y-2;
 
 				}
-			}
+				break;
 
-			if(tecla == F4){ //Satar-Abajo
+			case F4:
 
 				if(laberintov[y+2-5][x-5] == pared){
 
@@ -890,9 +935,9 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 					y=y+2;
 
 				}
-			}
+				break;
 
-			if(tecla == ARRIBA){
+			case ARRIBA:
 
 				if(laberintov[y-1-5][x-5] == pared){
 
@@ -902,9 +947,9 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 
 					y--;
 				}
-			}
+				break;
 
-			if(tecla == ABAJO){
+			case ABAJO:
 
 				if(laberintov[y+1-5][x-5] == pared){
 
@@ -914,21 +959,9 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 
 					y++;
 				}
-			}
+				break;
 
-			if(tecla == IZQUIERDA){
-
-				if(laberintov[y-5][x-1-5] == pared){
-
-					Beep(250, 100);
-
-				}else{
-
-					x--;
-				}
-			}
-
-			if(tecla == DERECHA){
+			case DERECHA:
 
 				if(laberintov[y-5][x+1-5] == pared){
 
@@ -938,6 +971,24 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 
 					x++;
 				}
+				break;
+
+			case IZQUIERDA:
+
+				if(laberintov[y-5][x-1-5] == pared){
+
+					Beep(250, 100);
+
+				}else{
+
+					x--;
+				}
+				break;
+
+			default:
+
+				break;
+
 			}
 
 			gotoxy(x,y);
@@ -988,7 +1039,7 @@ void mover_vocales(laberinto_vocales laberintov, regis_jug & rj, nick nickaux){
 
 }
 
-void cargar_laberinto_pares(laberinto_pares laberintop){
+void cargar_laberinto_pares(laberinto laberintop){
 
 	int x,y;
 	char pared;
@@ -1014,7 +1065,7 @@ void cargar_laberinto_pares(laberinto_pares laberintop){
 	}
 }
 
-void cargar_laberinto_impares(laberinto_impares laberintoi){
+void cargar_laberinto_impares(laberinto laberintoi){
 
 	int x,y;
 	char pared;
@@ -1042,7 +1093,7 @@ void cargar_laberinto_impares(laberinto_impares laberintoi){
 	}
 }
 
-void cargar_laberinto_vocales(laberinto_vocales laberintov){
+void cargar_laberinto_vocales(laberinto laberintov){
 
 	int x,y;
 	char pared;
@@ -1083,12 +1134,12 @@ int mostrar_puntuacion(int puntos){
 
 }
 
-void actualizar_fichero_jugadores(regis_jug & rj){
+void actualizar_fichero_jugadores(argumentos a0, regis_jug & rj){
 
 	ofstream fo_jugadores;
 	//Guardamos en el archivo el jugador nuevo
 
-	fo_jugadores.open("jugadores.txt");
+	fo_jugadores.open(a0);
 
 	if(!fo_jugadores.fail()){
 
@@ -1109,4 +1160,3 @@ void actualizar_fichero_jugadores(regis_jug & rj){
 
 
 }
-
